@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+  <title>GhostReview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a08;
+      --off-white: #f0ede6;
+      --acid: #d4f53c;
+      --ghost: #c8c4b8;
+      --dim: #3a3a34;
+      --red: #ff3b30;
+      --amber: #ff9f0a;
+      --blue: #82aaff;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--black);
+      color: var(--off-white);
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* ── APP SHELL ── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    #header {
+      padding: 12px 12px 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--off-white);
+      letter-spacing: -0.3px;
+    }
+    .logo span { color: var(--acid); }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 5px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--dim);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .dot-analyzing { animation: pulse 1.2s ease-in-out infinite; }
+
+    .status-text {
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      color: var(--dim);
+      transition: color 0.3s;
+    }
+
+    /* ── CONTROLS ── */
+    #controls {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-label {
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 10px;
+      color: rgba(200, 196, 184, 0.45);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    /* ── PERSONA BUTTONS ── */
+    .persona-buttons { display: flex; gap: 4px; }
+
+    .persona-btn {
+      flex: 1;
+      padding: 6px 4px;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent;
+      color: var(--ghost);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* Per-persona hover on inactive buttons */
+    #btn-brutal:not(.active-brutal):hover   { color: #ff3b30; border-color: rgba(255,59,48,0.4); }
+    #btn-velocity:not(.active-velocity):hover { color: #d4f53c; border-color: rgba(212,245,60,0.4); }
+    #btn-security:not(.active-security):hover { color: #82aaff; border-color: rgba(130,170,255,0.4); }
+
+    .persona-btn.active-brutal   { background: rgba(255,59,48,0.15);  border-color: #ff3b30; color: #ff3b30; }
+    .persona-btn.active-velocity { background: rgba(212,245,60,0.12); border-color: #d4f53c; color: #d4f53c; }
+    .persona-btn.active-security { background: rgba(130,170,255,0.12); border-color: #82aaff; color: #82aaff; }
+
+    /* ── SCOPE DROPDOWNS ── */
+    .scope-dropdowns { display: flex; gap: 6px; }
+
+    .scope-dropdowns select {
+      flex: 1;
+      background: #111110;
+      color: var(--ghost);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 6px 8px;
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      min-width: 0;
+    }
+    .scope-dropdowns select:focus { border-color: var(--acid); }
+
+    /* ── REVIEW BUTTON ── */
+    #reviewBtn {
+      width: 100%;
+      padding: 10px;
+      background: var(--acid);
+      color: var(--black);
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    #reviewBtn:hover:not(:disabled) { opacity: 0.88; }
+    #reviewBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── DIFF WARNING ── */
+    #diffWarning {
+      display: none;
+      background: rgba(255,159,10,0.08);
+      border: 1px solid rgba(255,159,10,0.25);
+      padding: 10px 12px;
+      border-radius: 3px;
+      color: var(--amber);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    /* ── REVIEW OUTPUT ── */
+    #reviewOutput {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ── EMPTY STATE ── */
+    #emptyState {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      padding: 16px;
+    }
+
+    .empty-ghost { font-size: 36px; line-height: 1; }
+
+    .empty-text {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+      color: var(--ghost);
+      line-height: 1.6;
+    }
+
+    .empty-hint {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 11px;
+      color: var(--dim);
+      line-height: 1.5;
+    }
+
+    /* ── INFO BOX (noDiff) ── */
+    #noDiffBox {
+      display: none;
+      background: rgba(212,245,60,0.05);
+      border: 1px solid rgba(212,245,60,0.15);
+      padding: 12px;
+      border-radius: 3px;
+    }
+    #noDiffBox.visible { display: block; }
+
+    .nodiff-title {
+      color: var(--ghost);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .nodiff-sub {
+      color: var(--dim);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+    }
+
+    /* ── ERROR BOX ── */
+    #errorBox {
+      display: none;
+      background: rgba(255,59,48,0.08);
+      border: 1px solid rgba(255,59,48,0.2);
+      padding: 12px;
+      border-radius: 3px;
+    }
+    #errorBox.visible { display: block; }
+
+    .error-icon {
+      color: var(--red);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    #errorMessage {
+      color: var(--ghost);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .settings-link {
+      color: var(--acid);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .settings-link:hover { text-decoration: underline; }
+
+    /* ── NO API KEY BOX ── */
+    #noApiKeyBox {
+      display: none;
+      background: rgba(255,59,48,0.08);
+      border: 1px solid rgba(255,59,48,0.2);
+      padding: 12px;
+      border-radius: 3px;
+    }
+    #noApiKeyBox.visible { display: block; }
+
+    .no-api-title {
+      color: var(--red);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    .no-api-link {
+      color: var(--acid);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .no-api-link:hover { text-decoration: underline; }
+
+    /* ── REVIEW CONTENT ── */
+    #reviewContent {
+      display: none;
+      flex-direction: column;
+    }
+    #reviewContent.visible { display: flex; }
+
+    /* Sticky copy button row */
+    .copy-row {
+      display: flex;
+      justify-content: flex-end;
+      position: sticky;
+      top: 0;
+      padding-bottom: 8px;
+      background: var(--black);
+      z-index: 1;
+    }
+
+    #copyBtn {
+      display: none;
+      background: rgba(212,245,60,0.1);
+      border: 1px solid rgba(212,245,60,0.3);
+      color: var(--acid);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    #copyBtn:hover { opacity: 0.75; }
+    #copyBtn.copied { opacity: 0.6; }
+
+    /* ── REVIEW BODY (rendered markdown) ── */
+    .review-body h1, .review-body h2, .review-body h3, .review-body h4 {
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      color: #f0ede6;
+      margin: 20px 0 8px 0;
+      letter-spacing: -0.3px;
+      line-height: 1.3;
+    }
+    /* First heading at top: no top margin */
+    .review-body > h1:first-child,
+    .review-body > h2:first-child,
+    .review-body > p:first-child > h1,
+    .review-body > p:first-child > h2 { margin-top: 0; }
+
+    .review-body h1 { font-size: 15px; color: #d4f53c; }
+    .review-body h2 { font-size: 14px; color: #f0ede6; }
+    .review-body h3 { font-size: 13px; color: #f0ede6; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px; }
+    .review-body h4 { font-size: 12px; color: #c8c4b8; }
+    .review-body p  { color: #c8c4b8; font-size: 12px; line-height: 1.75; margin-bottom: 12px; }
+    .review-body p:last-child { margin-bottom: 0; }
+    .review-body strong { color: #f0ede6; font-weight: 600; }
+    .review-body em     { color: #c8c4b8; font-style: italic; }
+    .review-body code   {
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      color: #d4f53c;
+      background: rgba(212,245,60,0.1);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .review-body hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
+    .review-body br { display: block; margin: 2px 0; }
+
+    /* ── BLINKING CURSOR ── */
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--acid);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 0.8s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+
+    <!-- HEADER -->
+    <div id="header">
+      <div class="logo">Ghost<span>Review</span></div>
+      <div class="status-row">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-text" id="statusText">ready</span>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div id="controls">
+
+      <!-- PERSONA SELECTOR -->
+      <div id="personaSection">
+        <div class="section-label">// reviewer</div>
+        <div class="persona-buttons">
+          <button class="persona-btn" id="btn-brutal"   data-persona="brutal">💀 Brutal</button>
+          <button class="persona-btn" id="btn-velocity" data-persona="velocity">⚡ Velocity</button>
+          <button class="persona-btn" id="btn-security" data-persona="security">🔒 Security</button>
+        </div>
+      </div>
+
+      <!-- DIFF SCOPE -->
+      <div id="scopeSection">
+        <div class="section-label">// scope</div>
+        <div class="scope-dropdowns">
+          <select id="scopeSelect">
+            <option value="uncommitted">Uncommitted</option>
+            <option value="branch">vs main</option>
+          </select>
+          <select id="fileSelect">
+            <option value="all">All files</option>
+            <option value="current">Current file</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- REVIEW BUTTON -->
+      <div id="reviewButtonSection">
+        <button id="reviewBtn">Review My Changes →</button>
+      </div>
+
+      <!-- DIFF WARNING (inside controls, above output) -->
+      <div id="diffWarning"></div>
+
+    </div><!-- /controls -->
+
+    <!-- REVIEW OUTPUT -->
+    <div id="reviewOutput">
+
+      <!-- EMPTY STATE -->
+      <div id="emptyState">
+        <div class="empty-ghost">👻</div>
+        <div class="empty-text">Select a persona and review your changes</div>
+        <div class="empty-hint">Groq API key must be set in settings</div>
+      </div>
+
+      <!-- NO DIFF BOX -->
+      <div id="noDiffBox">
+        <div class="nodiff-title">No changes detected.</div>
+        <div class="nodiff-sub">Make some changes and try again.</div>
+      </div>
+
+      <!-- ERROR BOX -->
+      <div id="errorBox">
+        <div class="error-icon">✕</div>
+        <div id="errorMessage"></div>
+        <button class="settings-link" id="errorSettingsLink">Open Settings →</button>
+      </div>
+
+      <!-- NO API KEY BOX -->
+      <div id="noApiKeyBox">
+        <div class="no-api-title">No Groq API key found.</div>
+        <button class="no-api-link" id="noApiSettingsLink">Add your key in Settings →</button>
+      </div>
+
+      <!-- STREAMING / DONE REVIEW -->
+      <div id="reviewContent">
+        <div class="copy-row">
+          <button id="copyBtn">Copy</button>
+        </div>
+        <div id="reviewBody" class="review-body"></div>
+      </div>
+
+    </div><!-- /reviewOutput -->
+
+  </div><!-- /app -->
+
+  <script>
+    const vscode = acquireVsCodeApi();
+
+    // ── STATE ──────────────────────────────────────────────
+    let currentPersona = 'brutal';
+    let isLoading = false;
+    let reviewText = '';
+
+    // ── ELEMENT REFS ───────────────────────────────────────
+    const statusDot      = document.getElementById('statusDot');
+    const statusTextEl   = document.getElementById('statusText');
+    const reviewBtn      = document.getElementById('reviewBtn');
+    const diffWarning    = document.getElementById('diffWarning');
+    const emptyState     = document.getElementById('emptyState');
+    const noDiffBox      = document.getElementById('noDiffBox');
+    const errorBox       = document.getElementById('errorBox');
+    const errorMessageEl = document.getElementById('errorMessage');
+    const noApiKeyBox    = document.getElementById('noApiKeyBox');
+    const reviewContent  = document.getElementById('reviewContent');
+    const reviewBody     = document.getElementById('reviewBody');
+    const copyBtn        = document.getElementById('copyBtn');
+    const reviewOutput   = document.getElementById('reviewOutput');
+    const scopeSelect    = document.getElementById('scopeSelect');
+    const fileSelect     = document.getElementById('fileSelect');
+
+    // ── HELPERS ────────────────────────────────────────────
+    function setStatus(state) {
+      const cfg = {
+        idle:      { color: 'var(--dim)',   text: 'ready' },
+        analyzing: { color: 'var(--amber)', text: 'analyzing...' },
+        done:      { color: 'var(--acid)',  text: 'done' },
+        error:     { color: 'var(--red)',   text: 'error' },
+      }[state] || { color: 'var(--dim)', text: 'ready' };
+
+      statusDot.style.background = cfg.color;
+      statusTextEl.textContent   = cfg.text;
+      statusTextEl.style.color   = cfg.color;
+
+      // Pulse animation only while analyzing
+      if (state === 'analyzing') {
+        statusDot.classList.add('dot-analyzing');
+      } else {
+        statusDot.classList.remove('dot-analyzing');
+      }
+    }
+
+    function setActivePersona(persona) {
+      currentPersona = persona;
+      document.querySelectorAll('.persona-btn').forEach(btn => {
+        btn.className = 'persona-btn';
+      });
+      const target = document.getElementById('btn-' + persona);
+      if (target) { target.classList.add('active-' + persona); }
+    }
+
+    // Show exactly one output zone, hide the rest
+    function showZone(which) {
+      emptyState.style.display = 'none';
+      noDiffBox.classList.remove('visible');
+      errorBox.classList.remove('visible');
+      noApiKeyBox.classList.remove('visible');
+      reviewContent.classList.remove('visible');
+
+      if      (which === 'empty')    { emptyState.style.display = 'flex'; }
+      else if (which === 'noDiff')   { noDiffBox.classList.add('visible'); }
+      else if (which === 'error')    { errorBox.classList.add('visible'); }
+      else if (which === 'noApiKey') { noApiKeyBox.classList.add('visible'); }
+      else if (which === 'review')   { reviewContent.classList.add('visible'); }
+    }
+
+    function renderMarkdown(text) {
+      let result = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm,  '<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g,    '<em>$1</em>')
+        .replace(/`([^`]+)`/g,    '<code>$1</code>')
+        .replace(/^---$/gm, '<hr>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g,   '<br>');
+      return '<p>' + result + '</p>';
+    }
+
+    function resetToIdle() {
+      isLoading = false;
+      reviewBtn.disabled = false;
+      reviewBtn.textContent = 'Review My Changes →';
+      setStatus('idle');
+    }
+
+    // ── INIT ───────────────────────────────────────────────
+    const savedState = vscode.getState();
+    if (savedState && savedState.persona) {
+      currentPersona = savedState.persona;
+    }
+
+    setActivePersona(currentPersona);
+    setStatus('idle');
+    showZone('empty');
+
+    vscode.postMessage({ type: 'ready' });
+
+    // ── PERSONA BUTTONS ────────────────────────────────────
+    document.querySelectorAll('.persona-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const persona = btn.dataset.persona;
+        setActivePersona(persona);
+        vscode.setState({ persona: currentPersona });
+
+        if (reviewContent.classList.contains('visible')) {
+          reviewText = '';
+          reviewBody.innerHTML = '';
+          copyBtn.style.display = 'none';
+          showZone('empty');
+        }
+
+        vscode.postMessage({ type: 'setPersona', persona: currentPersona });
+      });
+    });
+
+    // ── REVIEW BUTTON ──────────────────────────────────────
+    reviewBtn.addEventListener('click', () => {
+      if (isLoading) { return; }
+      vscode.postMessage({
+        type: 'startReview',
+        scope: scopeSelect.value,
+        fileScope: fileSelect.value,
+        persona: currentPersona,
+      });
+    });
+
+    // ── SETTINGS LINKS ─────────────────────────────────────
+    document.getElementById('errorSettingsLink').addEventListener('click', () => {
+      vscode.postMessage({ type: 'openSettings' });
+    });
+    document.getElementById('noApiSettingsLink').addEventListener('click', () => {
+      vscode.postMessage({ type: 'openSettings' });
+    });
+
+    // ── COPY BUTTON ────────────────────────────────────────
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(reviewText).then(() => {
+        copyBtn.textContent = 'Copied ✓';
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+
+    // ── MESSAGE HANDLER ────────────────────────────────────
+    window.addEventListener('message', event => {
+      const message = event.data;
+
+      switch (message.type) {
+
+        case 'init':
+          setActivePersona(message.persona || currentPersona);
+          vscode.setState({ persona: currentPersona });
+          if (!message.apiKeySet) {
+            showZone('noApiKey');
+          }
+          break;
+
+        case 'reviewStart':
+          isLoading = true;
+          reviewText = '';
+          diffWarning.style.display = 'none';
+          reviewBtn.disabled = true;
+          reviewBtn.textContent = 'Analyzing...';
+          setStatus('analyzing');
+          copyBtn.style.display = 'none';
+          reviewBody.innerHTML = '<span class="cursor"></span>';
+          showZone('review');
+          break;
+
+        case 'chunk':
+          reviewText += message.content;
+          reviewBody.innerHTML = renderMarkdown(reviewText) + '<span class="cursor"></span>';
+          reviewOutput.scrollTop = reviewOutput.scrollHeight;
+          break;
+
+        case 'reviewComplete':
+          isLoading = false;
+          reviewBody.innerHTML = renderMarkdown(reviewText);
+          copyBtn.style.display = 'block';
+          setStatus('done');
+          reviewBtn.disabled = false;
+          reviewBtn.textContent = 'Review Again →';
+          // Scroll to top so user reads from the beginning
+          reviewOutput.scrollTop = 0;
+          break;
+
+        case 'noDiff':
+          showZone('noDiff');
+          resetToIdle();
+          break;
+
+        case 'diffWarning':
+          diffWarning.style.display = 'block';
+          diffWarning.textContent =
+            '⚠ Large diff (' + message.lines + ' lines). Review may be slower.';
+          break;
+
+        case 'error':
+          errorMessageEl.textContent = message.message;
+          showZone('error');
+          resetToIdle();
+          break;
+      }
+    });
+  </script>
+</body>
+</html>
