@@ -44,6 +44,12 @@ The review streams in as it is generated. When complete, use the **Copy** button
 | `ghostreview.groqApiKey` | Your Groq API key | `""` |
 | `ghostreview.defaultPersona` | Default reviewer persona | `brutal` |
 
+## Telemetry
+
+GhostReview collects anonymous usage data to help improve the extension. No personal information, code, or review content is ever collected. Only anonymous event counts are tracked (e.g. "a review was started").
+
+Telemetry respects your VSCode telemetry settings. To disable: set `telemetry.telemetryLevel` to `"off"` in VSCode settings.
+
 ## Release Notes
 
 ### 0.1.0

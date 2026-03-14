@@ -5,6 +5,20 @@ const path    = require("path");
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
 
+// Load .env for build-time defines (file is gitignored)
+function loadEnv() {
+  const envPath = path.join(__dirname, '.env');
+  if (!fs.existsSync(envPath)) { return {}; }
+  const defines = {};
+  fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
+    const [key, ...rest] = line.split('=');
+    if (key && rest.length) {
+      defines[`process.env.${key.trim()}`] = JSON.stringify(rest.join('=').trim());
+    }
+  });
+  return defines;
+}
+
 /**
  * @type {import('esbuild').Plugin}
  */
@@ -44,6 +58,7 @@ async function main() {
 		platform: 'node',
 		outfile: 'dist/extension.js',
 		external: ['vscode'],
+		define: loadEnv(),
 		logLevel: 'silent',
 		plugins: [
 			/* add to the end of plugins array */

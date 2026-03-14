@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { GhostReviewPanel } from './panels/GhostReviewPanel';
+import { flush } from './services/analyticsService';
 
 export function activate(context: vscode.ExtensionContext) {
   const provider = new GhostReviewPanel(context.extensionUri);
@@ -16,4 +17,6 @@ export function activate(context: vscode.ExtensionContext) {
   );
 }
 
-export function deactivate() {}
+export function deactivate() {
+  flush();
+}

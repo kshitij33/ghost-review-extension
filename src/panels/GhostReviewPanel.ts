@@ -4,15 +4,24 @@ import { getDiff, DiffOptions } from '../services/gitService';
 import { streamReview } from '../services/groqService';
 import { saveReview } from '../services/dashboardService';
 import { PERSONA_PROMPTS, PERSONA_CONFIGS, Persona } from '../config/personas';
+import {
+  trackReviewStarted,
+  trackReviewCompleted,
+  trackDashboardConnected,
+  trackConnectBannerClicked,
+  trackConnectBannerDismissed
+} from '../services/analyticsService';
 
 export class GhostReviewPanel implements vscode.WebviewViewProvider {
   public static readonly viewType = 'ghostreview-panel';
   private _view?: vscode.WebviewView;
   private _currentPersona: Persona = 'brutal';
+  private _wasTokenSet: boolean = false;
 
   constructor(private readonly _extensionUri: vscode.Uri) {
     const config = vscode.workspace.getConfiguration('ghostreview');
     this._currentPersona = (config.get<string>('defaultPersona') || 'brutal') as Persona;
+    this._wasTokenSet = !!(config.get<string>('apiToken') || '').trim();
   }
 
   public resolveWebviewView(webviewView: vscode.WebviewView) {
@@ -48,13 +57,23 @@ export class GhostReviewPanel implements vscode.WebviewViewProvider {
           break;
 
         case 'openDashboard':
+          trackConnectBannerClicked();
           vscode.env.openExternal(vscode.Uri.parse('https://ghost-review-dashboard.vercel.app/dashboard/settings'));
+          break;
+
+        case 'dismissBanner':
+          trackConnectBannerDismissed();
           break;
       }
     });
 
     vscode.workspace.onDidChangeConfiguration(e => {
       if (e.affectsConfiguration('ghostreview.apiToken')) {
+        const isNowSet = !!(vscode.workspace.getConfiguration('ghostreview').get<string>('apiToken') || '').trim();
+        if (!this._wasTokenSet && isNowSet) {
+          trackDashboardConnected();
+        }
+        this._wasTokenSet = isNowSet;
         this._sendTokenStatus();
       }
     });
@@ -128,6 +147,8 @@ export class GhostReviewPanel implements vscode.WebviewViewProvider {
         persona: PERSONA_CONFIGS[this._currentPersona]
       });
 
+      trackReviewStarted(this._currentPersona, options.scope, options.fileScope);
+
       const stream = streamReview(diff, PERSONA_PROMPTS[this._currentPersona], apiKey);
 
       let reviewContent = '';
@@ -137,6 +158,7 @@ export class GhostReviewPanel implements vscode.WebviewViewProvider {
       }
 
       this._postMessage({ type: 'reviewComplete' });
+      trackReviewCompleted(this._currentPersona, options.scope, true);
 
       saveReview({
         persona: this._currentPersona,
@@ -147,6 +169,7 @@ export class GhostReviewPanel implements vscode.WebviewViewProvider {
       });
 
     } catch (error: any) {
+      trackReviewCompleted(this._currentPersona, options.scope, false);
       this._postMessage({
         type: 'error',
         message: error.message || 'Something went wrong. Please try again.'
