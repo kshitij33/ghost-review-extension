@@ -383,62 +383,94 @@
     .review-body hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
     .review-body br { display: block; margin: 2px 0; }
 
-    /* ── DASHBOARD BANNER ── */
-    #dashboardBanner {
+    /* ── CONNECT SECTION ── */
+    #connectSection {
       flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
+      padding: 10px 12px 12px 12px;
       border-top: 1px solid rgba(255,255,255,0.06);
       background: rgba(212,245,60,0.03);
     }
-    #dashboardBanner.hidden { display: none; }
+    #connectSection.hidden { display: none; }
 
-    .banner-text {
-      flex: 1;
-      min-width: 0;
-    }
-    .banner-title {
+    .connect-heading {
       font-family: 'IBM Plex Mono', 'Courier New', monospace;
       font-size: 10px;
       color: var(--ghost);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
     }
-    .banner-sub {
+
+    .connect-sub {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 11px;
+      color: var(--dim);
+      margin-bottom: 8px;
+    }
+
+    #openDashboardBtn {
+      background: none;
+      border: none;
+      color: var(--acid);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      padding: 0;
+      cursor: pointer;
+      margin-bottom: 8px;
+      display: block;
+    }
+    #openDashboardBtn:hover { text-decoration: underline; }
+
+    .token-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 5px;
+    }
+
+    #tokenInput {
+      flex: 1;
+      background: #111110;
+      color: var(--off-white);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 5px 8px;
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      border-radius: 3px;
+      outline: none;
+      min-width: 0;
+    }
+    #tokenInput:focus { border-color: var(--acid); }
+    #tokenInput::placeholder { color: var(--dim); }
+
+    #saveTokenBtn {
+      flex-shrink: 0;
+      background: var(--vscode-button-background, rgba(212,245,60,0.15));
+      border: 1px solid rgba(212,245,60,0.35);
+      color: var(--acid);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    #saveTokenBtn:hover:not(:disabled) { opacity: 0.75; }
+    #saveTokenBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #tokenError {
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--vscode-errorForeground, var(--red));
+      min-height: 14px;
+      margin-bottom: 4px;
+    }
+
+    .connect-hint {
       font-family: system-ui, -apple-system, sans-serif;
       font-size: 10px;
       color: var(--dim);
-      margin-top: 1px;
     }
-    #bannerConnectBtn {
-      flex-shrink: 0;
-      background: rgba(212,245,60,0.1);
-      border: 1px solid rgba(212,245,60,0.3);
-      color: var(--acid);
-      font-family: 'IBM Plex Mono', 'Courier New', monospace;
-      font-size: 10px;
-      padding: 4px 8px;
-      border-radius: 3px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: opacity 0.15s;
-    }
-    #bannerConnectBtn:hover { opacity: 0.75; }
-    #bannerDismissBtn {
-      flex-shrink: 0;
-      background: none;
-      border: none;
-      color: var(--dim);
-      font-size: 14px;
-      line-height: 1;
-      cursor: pointer;
-      padding: 0 2px;
-      transition: color 0.15s;
-    }
-    #bannerDismissBtn:hover { color: var(--ghost); }
 
     /* ── BLINKING CURSOR ── */
     .cursor {
@@ -541,14 +573,17 @@
 
     </div><!-- /reviewOutput -->
 
-    <!-- DASHBOARD BANNER -->
-    <div id="dashboardBanner" class="hidden">
-      <div class="banner-text">
-        <div class="banner-title">Save reviews to your dashboard</div>
-        <div class="banner-sub">Track your history and patterns.</div>
+    <!-- CONNECT SECTION -->
+    <div id="connectSection" class="hidden">
+      <div class="connect-heading">💾 Connect Dashboard</div>
+      <div class="connect-sub">Save your reviews and track your growth.</div>
+      <button id="openDashboardBtn">Open Dashboard →</button>
+      <div class="token-row">
+        <input id="tokenInput" type="password" placeholder="Paste your token here" />
+        <button id="saveTokenBtn">Save</button>
       </div>
-      <button id="bannerConnectBtn">Connect Account →</button>
-      <button id="bannerDismissBtn" title="Dismiss">✕</button>
+      <div id="tokenError"></div>
+      <div class="connect-hint">Get your free token at ghost-review-dashboard.vercel.app</div>
     </div>
 
   </div><!-- /app -->
@@ -560,7 +595,6 @@
     let currentPersona = 'brutal';
     let isLoading = false;
     let reviewText = '';
-    let bannerDismissed = false;
 
     // ── ELEMENT REFS ───────────────────────────────────────
     const statusDot      = document.getElementById('statusDot');
@@ -698,24 +732,34 @@
       vscode.postMessage({ type: 'openSettings' });
     });
 
-    // ── DASHBOARD BANNER ───────────────────────────────────
-    const dashboardBanner = document.getElementById('dashboardBanner');
+    // ── CONNECT SECTION ────────────────────────────────────
+    const connectSection = document.getElementById('connectSection');
+    const tokenInput     = document.getElementById('tokenInput');
+    const saveTokenBtn   = document.getElementById('saveTokenBtn');
+    const tokenError     = document.getElementById('tokenError');
 
-    function updateBanner(apiTokenSet) {
-      if (apiTokenSet || bannerDismissed) {
-        dashboardBanner.classList.add('hidden');
+    function updateConnectSection(apiTokenSet) {
+      if (apiTokenSet) {
+        connectSection.classList.add('hidden');
       } else {
-        dashboardBanner.classList.remove('hidden');
+        connectSection.classList.remove('hidden');
       }
     }
 
-    document.getElementById('bannerConnectBtn').addEventListener('click', () => {
+    document.getElementById('openDashboardBtn').addEventListener('click', () => {
       vscode.postMessage({ type: 'openDashboard' });
     });
 
-    document.getElementById('bannerDismissBtn').addEventListener('click', () => {
-      bannerDismissed = true;
-      dashboardBanner.classList.add('hidden');
+    saveTokenBtn.addEventListener('click', () => {
+      const token = tokenInput.value.trim();
+      if (!token) {
+        tokenError.textContent = 'Please enter a token';
+        return;
+      }
+      tokenError.textContent = '';
+      saveTokenBtn.disabled = true;
+      saveTokenBtn.textContent = 'Saving...';
+      vscode.postMessage({ type: 'saveApiToken', token });
     });
 
     // ── COPY BUTTON ────────────────────────────────────────
@@ -742,11 +786,14 @@
           if (!message.apiKeySet) {
             showZone('noApiKey');
           }
-          updateBanner(message.apiTokenSet);
+          updateConnectSection(message.apiTokenSet);
           break;
 
         case 'tokenStatus':
-          updateBanner(message.apiTokenSet);
+          updateConnectSection(message.apiTokenSet);
+          tokenInput.value = '';
+          saveTokenBtn.disabled = false;
+          saveTokenBtn.textContent = 'Save';
           break;
 
         case 'reviewStart':

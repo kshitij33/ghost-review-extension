@@ -9,7 +9,6 @@ import {
   trackReviewCompleted,
   trackDashboardConnected,
   trackConnectBannerClicked,
-  trackConnectBannerDismissed
 } from '../services/analyticsService';
 
 export class GhostReviewPanel implements vscode.WebviewViewProvider {
@@ -61,9 +60,18 @@ export class GhostReviewPanel implements vscode.WebviewViewProvider {
           vscode.env.openExternal(vscode.Uri.parse('https://ghost-review-dashboard.vercel.app/dashboard/settings'));
           break;
 
-        case 'dismissBanner':
-          trackConnectBannerDismissed();
+        case 'saveApiToken': {
+          const token = (message.token || '').trim();
+          if (token) {
+            await vscode.workspace.getConfiguration('ghostreview').update(
+              'apiToken', token, vscode.ConfigurationTarget.Global
+            );
+            trackDashboardConnected();
+            this._sendTokenStatus();
+            vscode.window.showInformationMessage('GhostReview dashboard connected ✓');
+          }
           break;
+        }
       }
     });
 
