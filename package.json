@@ -12,7 +12,7 @@
   },
   "galleryBanner": {
     "color": "#0a0a08",
-    "theme": "dark"
+    "theme": "dark"                                                                                                               
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -64,6 +64,11 @@
           "type": "string",
           "default": "",
           "description": "Your Groq API key. Get one free at console.groq.com"
+        },
+        "ghostreview.apiToken": {
+          "type": "string",
+          "default": "",
+          "description": "Your GhostReview API token from the dashboard. Get it at https://ghost-review-dashboard.vercel.app/dashboard/settings"
         },
         "ghostreview.defaultPersona": {
           "type": "string",
