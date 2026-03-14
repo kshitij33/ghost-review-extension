@@ -14,3 +14,8 @@ esbuild.js
 **/*.map
 !dist/**
 dist/**/*.map
+CLAUDE.md
+.claude/
+**/*.md
+!README.md
+**/.env*
