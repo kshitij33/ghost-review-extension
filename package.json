@@ -12,7 +12,7 @@
   },
   "galleryBanner": {
     "color": "#0a0a08",
-    "theme": "dark"
+    "theme": "dark"    
   },
   "engines": {
     "vscode": "^1.85.0"

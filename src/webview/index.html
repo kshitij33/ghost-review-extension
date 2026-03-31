@@ -177,6 +177,17 @@
     #reviewBtn:hover:not(:disabled) { opacity: 0.88; }
     #reviewBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+    /* ── FREE TIER BAR ── */
+    #freeTierBar {
+      display: none;
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--vscode-textLink-foreground, var(--acid));
+      padding: 4px 0 0 0;
+      opacity: 0.8;
+    }
+    #freeTierBar.visible { display: block; }
+
     /* ── DIFF WARNING ── */
     #diffWarning {
       display: none;
@@ -189,6 +200,68 @@
       font-size: 11px;
       line-height: 1.5;
     }
+
+    /* ── FREE LIMIT CARD ── */
+    #freeLimitCard {
+      display: none;
+      padding: 16px 12px;
+      text-align: center;
+    }
+    #freeLimitCard.visible { display: block; }
+
+    .free-limit-heading {
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--vscode-foreground, var(--off-white));
+      margin-bottom: 6px;
+    }
+
+    .free-limit-sub {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 11px;
+      color: var(--vscode-descriptionForeground, var(--ghost));
+      margin-bottom: 16px;
+    }
+
+    .free-limit-btn-primary {
+      display: block;
+      width: 100%;
+      padding: 9px;
+      background: var(--vscode-button-background, var(--acid));
+      color: var(--vscode-button-foreground, var(--black));
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      margin-bottom: 4px;
+      transition: opacity 0.15s;
+    }
+    .free-limit-btn-primary:hover { opacity: 0.85; }
+
+    .free-limit-btn-desc {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 10px;
+      color: var(--vscode-descriptionForeground, var(--dim));
+      margin-bottom: 12px;
+    }
+
+    .free-limit-btn-secondary {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      background: transparent;
+      color: var(--vscode-foreground, var(--ghost));
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 11px;
+      border: 1px solid var(--vscode-button-secondaryBackground, rgba(255,255,255,0.15));
+      border-radius: 3px;
+      cursor: pointer;
+      margin-bottom: 4px;
+      transition: opacity 0.15s;
+    }
+    .free-limit-btn-secondary:hover { opacity: 0.75; }
 
     /* ── REVIEW OUTPUT ── */
     #reviewOutput {
@@ -288,35 +361,6 @@
     }
     .settings-link:hover { text-decoration: underline; }
 
-    /* ── NO API KEY BOX ── */
-    #noApiKeyBox {
-      display: none;
-      background: rgba(255,59,48,0.08);
-      border: 1px solid rgba(255,59,48,0.2);
-      padding: 12px;
-      border-radius: 3px;
-    }
-    #noApiKeyBox.visible { display: block; }
-
-    .no-api-title {
-      color: var(--red);
-      font-family: 'IBM Plex Mono', 'Courier New', monospace;
-      font-size: 11px;
-      margin-bottom: 6px;
-    }
-
-    .no-api-link {
-      color: var(--acid);
-      font-family: 'IBM Plex Mono', 'Courier New', monospace;
-      font-size: 11px;
-      cursor: pointer;
-      text-decoration: none;
-      background: none;
-      border: none;
-      padding: 0;
-    }
-    .no-api-link:hover { text-decoration: underline; }
-
     /* ── REVIEW CONTENT ── */
     #reviewContent {
       display: none;
@@ -383,94 +427,50 @@
     .review-body hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
     .review-body br { display: block; margin: 2px 0; }
 
-    /* ── CONNECT SECTION ── */
-    #connectSection {
+    /* ── PATH A BANNER ── */
+    #pathABanner {
+      display: none;
       flex-shrink: 0;
-      padding: 10px 12px 12px 12px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      background: rgba(212,245,60,0.03);
+      padding: 8px 12px;
+      border-top: 1px solid var(--vscode-panel-border, rgba(255,255,255,0.06));
+      background: var(--vscode-sideBar-background, transparent);
     }
-    #connectSection.hidden { display: none; }
+    #pathABanner.visible { display: flex; align-items: center; gap: 8px; }
 
-    .connect-heading {
-      font-family: 'IBM Plex Mono', 'Courier New', monospace;
-      font-size: 10px;
-      color: var(--ghost);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
-    }
-
-    .connect-sub {
+    .banner-text {
+      flex: 1;
       font-family: system-ui, -apple-system, sans-serif;
       font-size: 11px;
-      color: var(--dim);
-      margin-bottom: 8px;
+      color: var(--vscode-descriptionForeground, var(--ghost));
     }
 
-    #openDashboardBtn {
+    .banner-connect-btn {
+      flex-shrink: 0;
+      background: var(--vscode-button-secondaryBackground, rgba(255,255,255,0.08));
+      border: 1px solid var(--vscode-button-secondaryBorder, rgba(255,255,255,0.15));
+      color: var(--vscode-button-secondaryForeground, var(--off-white));
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    .banner-connect-btn:hover { opacity: 0.75; }
+
+    .banner-dismiss-btn {
+      flex-shrink: 0;
       background: none;
       border: none;
-      color: var(--acid);
-      font-family: 'IBM Plex Mono', 'Courier New', monospace;
-      font-size: 11px;
-      padding: 0;
+      color: var(--vscode-descriptionForeground, var(--dim));
+      font-size: 14px;
       cursor: pointer;
-      margin-bottom: 8px;
-      display: block;
-    }
-    #openDashboardBtn:hover { text-decoration: underline; }
-
-    .token-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 5px;
-    }
-
-    #tokenInput {
-      flex: 1;
-      background: #111110;
-      color: var(--off-white);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 5px 8px;
-      font-family: 'IBM Plex Mono', 'Courier New', monospace;
-      font-size: 11px;
-      border-radius: 3px;
-      outline: none;
-      min-width: 0;
-    }
-    #tokenInput:focus { border-color: var(--acid); }
-    #tokenInput::placeholder { color: var(--dim); }
-
-    #saveTokenBtn {
-      flex-shrink: 0;
-      background: var(--vscode-button-background, rgba(212,245,60,0.15));
-      border: 1px solid rgba(212,245,60,0.35);
-      color: var(--acid);
-      font-family: 'IBM Plex Mono', 'Courier New', monospace;
-      font-size: 11px;
-      padding: 5px 10px;
-      border-radius: 3px;
-      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
       transition: opacity 0.15s;
-      white-space: nowrap;
     }
-    #saveTokenBtn:hover:not(:disabled) { opacity: 0.75; }
-    #saveTokenBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    #tokenError {
-      font-family: 'IBM Plex Mono', 'Courier New', monospace;
-      font-size: 10px;
-      color: var(--vscode-errorForeground, var(--red));
-      min-height: 14px;
-      margin-bottom: 4px;
-    }
-
-    .connect-hint {
-      font-family: system-ui, -apple-system, sans-serif;
-      font-size: 10px;
-      color: var(--dim);
-    }
+    .banner-dismiss-btn:hover { opacity: 0.6; }
 
     /* ── BLINKING CURSOR ── */
     .cursor {
@@ -524,15 +524,28 @@
         </div>
       </div>
 
+      <!-- FREE TIER BAR -->
+      <div id="freeTierBar"></div>
+
       <!-- REVIEW BUTTON -->
       <div id="reviewButtonSection">
-        <button id="reviewBtn">Review My Changes →</button>
+        <button id="reviewBtn">Review →</button>
       </div>
 
       <!-- DIFF WARNING (inside controls, above output) -->
       <div id="diffWarning"></div>
 
     </div><!-- /controls -->
+
+    <!-- FREE LIMIT CARD (replaces controls content when limit reached) -->
+    <div id="freeLimitCard">
+      <div class="free-limit-heading">You've used your 5 free reviews</div>
+      <div class="free-limit-sub">Choose how to continue:</div>
+      <button class="free-limit-btn-primary" id="freeLimitConnectBtn">Connect Dashboard — full features</button>
+      <div class="free-limit-btn-desc">History, patterns, and more</div>
+      <button class="free-limit-btn-secondary" id="freeLimitGroqBtn">Add Groq Key — 30 seconds</button>
+      <div class="free-limit-btn-desc">Free key at console.groq.com</div>
+    </div>
 
     <!-- REVIEW OUTPUT -->
     <div id="reviewOutput">
@@ -541,7 +554,7 @@
       <div id="emptyState">
         <div class="empty-ghost">👻</div>
         <div class="empty-text">Select a persona and review your changes</div>
-        <div class="empty-hint">Groq API key must be set in settings</div>
+        <div class="empty-hint">Free reviews available — no account needed</div>
       </div>
 
       <!-- NO DIFF BOX -->
@@ -557,12 +570,6 @@
         <button class="settings-link" id="errorSettingsLink">Open Settings →</button>
       </div>
 
-      <!-- NO API KEY BOX -->
-      <div id="noApiKeyBox">
-        <div class="no-api-title">No Groq API key found.</div>
-        <button class="no-api-link" id="noApiSettingsLink">Add your key in Settings →</button>
-      </div>
-
       <!-- STREAMING / DONE REVIEW -->
       <div id="reviewContent">
         <div class="copy-row">
@@ -573,17 +580,11 @@
 
     </div><!-- /reviewOutput -->
 
-    <!-- CONNECT SECTION -->
-    <div id="connectSection" class="hidden">
-      <div class="connect-heading">💾 Connect Dashboard</div>
-      <div class="connect-sub">Save your reviews and track your growth.</div>
-      <button id="openDashboardBtn">Open Dashboard →</button>
-      <div class="token-row">
-        <input id="tokenInput" type="password" placeholder="Paste your token here" />
-        <button id="saveTokenBtn">Save</button>
-      </div>
-      <div id="tokenError"></div>
-      <div class="connect-hint">Get your free token at ghost-review-dashboard.vercel.app</div>
+    <!-- PATH A BANNER (shown when hasGroqKey && !hasJwt && !bannerDismissed) -->
+    <div id="pathABanner">
+      <span class="banner-text">💡 Connect dashboard to unlock history &amp; patterns</span>
+      <button class="banner-connect-btn" id="bannerConnectBtn">Connect</button>
+      <button class="banner-dismiss-btn" id="bannerDismissBtn">×</button>
     </div>
 
   </div><!-- /app -->
@@ -595,6 +596,13 @@
     let currentPersona = 'brutal';
     let isLoading = false;
     let reviewText = '';
+    let state = {
+      hasJwt: false,
+      hasGroqKey: false,
+      freeReviewCount: 0,
+      freeReviewLimit: 5,
+      isBannerDismissed: false
+    };
 
     // ── ELEMENT REFS ───────────────────────────────────────
     const statusDot      = document.getElementById('statusDot');
@@ -605,29 +613,31 @@
     const noDiffBox      = document.getElementById('noDiffBox');
     const errorBox       = document.getElementById('errorBox');
     const errorMessageEl = document.getElementById('errorMessage');
-    const noApiKeyBox    = document.getElementById('noApiKeyBox');
     const reviewContent  = document.getElementById('reviewContent');
     const reviewBody     = document.getElementById('reviewBody');
     const copyBtn        = document.getElementById('copyBtn');
     const reviewOutput   = document.getElementById('reviewOutput');
     const scopeSelect    = document.getElementById('scopeSelect');
     const fileSelect     = document.getElementById('fileSelect');
+    const freeTierBar    = document.getElementById('freeTierBar');
+    const freeLimitCard  = document.getElementById('freeLimitCard');
+    const controls       = document.getElementById('controls');
+    const pathABanner    = document.getElementById('pathABanner');
 
     // ── HELPERS ────────────────────────────────────────────
-    function setStatus(state) {
+    function setStatus(s) {
       const cfg = {
         idle:      { color: 'var(--dim)',   text: 'ready' },
         analyzing: { color: 'var(--amber)', text: 'analyzing...' },
         done:      { color: 'var(--acid)',  text: 'done' },
         error:     { color: 'var(--red)',   text: 'error' },
-      }[state] || { color: 'var(--dim)', text: 'ready' };
+      }[s] || { color: 'var(--dim)', text: 'ready' };
 
       statusDot.style.background = cfg.color;
       statusTextEl.textContent   = cfg.text;
       statusTextEl.style.color   = cfg.color;
 
-      // Pulse animation only while analyzing
-      if (state === 'analyzing') {
+      if (s === 'analyzing') {
         statusDot.classList.add('dot-analyzing');
       } else {
         statusDot.classList.remove('dot-analyzing');
@@ -648,14 +658,12 @@
       emptyState.style.display = 'none';
       noDiffBox.classList.remove('visible');
       errorBox.classList.remove('visible');
-      noApiKeyBox.classList.remove('visible');
       reviewContent.classList.remove('visible');
 
-      if      (which === 'empty')    { emptyState.style.display = 'flex'; }
-      else if (which === 'noDiff')   { noDiffBox.classList.add('visible'); }
-      else if (which === 'error')    { errorBox.classList.add('visible'); }
-      else if (which === 'noApiKey') { noApiKeyBox.classList.add('visible'); }
-      else if (which === 'review')   { reviewContent.classList.add('visible'); }
+      if      (which === 'empty')  { emptyState.style.display = 'flex'; }
+      else if (which === 'noDiff') { noDiffBox.classList.add('visible'); }
+      else if (which === 'error')  { errorBox.classList.add('visible'); }
+      else if (which === 'review') { reviewContent.classList.add('visible'); }
     }
 
     function renderMarkdown(text) {
@@ -679,8 +687,37 @@
     function resetToIdle() {
       isLoading = false;
       reviewBtn.disabled = false;
-      reviewBtn.textContent = 'Review My Changes →';
+      reviewBtn.textContent = 'Review →';
       setStatus('idle');
+    }
+
+    function applyUiState() {
+      const remaining = state.freeReviewLimit - state.freeReviewCount;
+      const onFreeTier = !state.hasJwt && !state.hasGroqKey;
+
+      // Free limit card replaces controls
+      if (onFreeTier && state.freeReviewCount >= state.freeReviewLimit) {
+        controls.style.display = 'none';
+        freeLimitCard.classList.add('visible');
+      } else {
+        controls.style.display = '';
+        freeLimitCard.classList.remove('visible');
+      }
+
+      // Free tier bar
+      if (onFreeTier && state.freeReviewCount < state.freeReviewLimit) {
+        freeTierBar.textContent = '✨ ' + remaining + ' free review' + (remaining === 1 ? '' : 's') + ' remaining — no account needed';
+        freeTierBar.classList.add('visible');
+      } else {
+        freeTierBar.classList.remove('visible');
+      }
+
+      // Path A banner
+      if (state.hasGroqKey && !state.hasJwt && !state.isBannerDismissed) {
+        pathABanner.classList.add('visible');
+      } else {
+        pathABanner.classList.remove('visible');
+      }
     }
 
     // ── INIT ───────────────────────────────────────────────
@@ -728,38 +765,23 @@
     document.getElementById('errorSettingsLink').addEventListener('click', () => {
       vscode.postMessage({ type: 'openSettings' });
     });
-    document.getElementById('noApiSettingsLink').addEventListener('click', () => {
-      vscode.postMessage({ type: 'openSettings' });
+
+    // ── FREE LIMIT CARD BUTTONS ────────────────────────────
+    document.getElementById('freeLimitConnectBtn').addEventListener('click', () => {
+      vscode.postMessage({ type: 'openOAuthFlow' });
+    });
+    document.getElementById('freeLimitGroqBtn').addEventListener('click', () => {
+      vscode.postMessage({ type: 'openGroqSetup' });
     });
 
-    // ── CONNECT SECTION ────────────────────────────────────
-    const connectSection = document.getElementById('connectSection');
-    const tokenInput     = document.getElementById('tokenInput');
-    const saveTokenBtn   = document.getElementById('saveTokenBtn');
-    const tokenError     = document.getElementById('tokenError');
-
-    function updateConnectSection(apiTokenSet) {
-      if (apiTokenSet) {
-        connectSection.classList.add('hidden');
-      } else {
-        connectSection.classList.remove('hidden');
-      }
-    }
-
-    document.getElementById('openDashboardBtn').addEventListener('click', () => {
-      vscode.postMessage({ type: 'openDashboard' });
+    // ── PATH A BANNER BUTTONS ──────────────────────────────
+    document.getElementById('bannerConnectBtn').addEventListener('click', () => {
+      vscode.postMessage({ type: 'openOAuthFlow' });
     });
-
-    saveTokenBtn.addEventListener('click', () => {
-      const token = tokenInput.value.trim();
-      if (!token) {
-        tokenError.textContent = 'Please enter a token';
-        return;
-      }
-      tokenError.textContent = '';
-      saveTokenBtn.disabled = true;
-      saveTokenBtn.textContent = 'Saving...';
-      vscode.postMessage({ type: 'saveApiToken', token });
+    document.getElementById('bannerDismissBtn').addEventListener('click', () => {
+      state.isBannerDismissed = true;
+      applyUiState();
+      vscode.postMessage({ type: 'dismissBanner' });
     });
 
     // ── COPY BUTTON ────────────────────────────────────────
@@ -783,17 +805,32 @@
         case 'init':
           setActivePersona(message.persona || currentPersona);
           vscode.setState({ persona: currentPersona });
-          if (!message.apiKeySet) {
-            showZone('noApiKey');
-          }
-          updateConnectSection(message.apiTokenSet);
+          state.hasJwt           = !!message.hasJwt;
+          state.hasGroqKey       = !!message.hasGroqKey;
+          state.freeReviewCount  = message.freeReviewCount || 0;
+          state.freeReviewLimit  = message.freeReviewLimit || 5;
+          state.isBannerDismissed = !!message.isBannerDismissed;
+          applyUiState();
+          showZone('empty');
           break;
 
         case 'tokenStatus':
-          updateConnectSection(message.apiTokenSet);
-          tokenInput.value = '';
-          saveTokenBtn.disabled = false;
-          saveTokenBtn.textContent = 'Save';
+          state.hasJwt = !!message.hasJwt;
+          applyUiState();
+          break;
+
+        case 'updateFreeCount': {
+          const remaining = message.reviews_remaining;
+          state.freeReviewCount = state.freeReviewLimit - remaining;
+          applyUiState();
+          break;
+        }
+
+        case 'showFreeLimitReached':
+          state.freeReviewCount = state.freeReviewLimit;
+          applyUiState();
+          showZone('empty');
+          resetToIdle();
           break;
 
         case 'reviewStart':
