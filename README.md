@@ -2,56 +2,58 @@
 
 # GhostReview
 
-> AI code review that sounds like a senior engineer, not a linter.
+> AI code review that remembers your mistakes so you don't repeat them.
 
-GhostReview reviews your git diff before your senior does. Pick a reviewer persona and get feedback that actually stings — not style suggestions.
+**5 free reviews. No signup. No API key. Just install and click Review.**
 
-## Features
+## Try it in 30 seconds
+
+1. Install the extension
+2. Open any git repo with uncommitted changes
+3. Click the 👻 ghost icon in your activity bar
+4. Click **Review →**
+
+That's it. Your first 5 reviews are free — no account, no API key, nothing to configure.
+
+## Three personas, one diff
 
 - **💀 Brutal Architect** — tears apart your architectural decisions
 - **⚡ Startup Velocity** — separates blockers from bikeshedding
 - **🔒 Security Paranoid** — finds vulnerabilities before your users do
 
-Reviews are streamed in real time, directly in your sidebar.
+## Track your patterns over time
 
-## Setup
+Connect the dashboard to save your reviews. After 3+ reviews, run pattern analysis to see your recurring mistakes — security habits, maintainability issues, correctness gaps that show up again and again in your code.
 
-1. Install the extension
-2. Get a free Groq API key at [console.groq.com](https://console.groq.com)
-3. Open VSCode Settings (`Ctrl+,`) and search **ghostreview**
-4. Paste your Groq API key
-5. Open a git repository, make some changes, and click **Review My Changes →**
+## When you want more
 
-## Usage
+- Add your own free Groq key for unlimited reviews
+- Connect the [GhostReview dashboard](https://ghost-review-dashboard.vercel.app) for history and pattern tracking
+- Both are optional. Try the free tier first.
 
-1. Open the GhostReview sidebar (👻 icon in the activity bar)
-2. Select a reviewer persona
-3. Choose diff scope (uncommitted changes or branch vs main)
-4. Choose file scope (all files or current file)
-5. Click **Review My Changes →**
+## Privacy
 
-The review streams in as it is generated. When complete, use the **Copy** button to grab the full review text.
-
-## Requirements
-
-- A git repository with uncommitted changes or commits ahead of main/master
-- A free Groq API key ([console.groq.com](https://console.groq.com))
+- **Free tier:** your diff is sent to GhostReview servers to generate the review. Not stored against your account.
+- **Groq key path:** reviews run entirely on your machine. Nothing sent to our servers.
+- **Dashboard path:** diff and review content saved to your account.
 
 ## Extension Settings
 
 | Setting | Description | Default |
 |---|---|---|
-| `ghostreview.groqApiKey` | Your Groq API key | `""` |
+| `ghostreview.groqApiKey` | Your Groq API key (optional) | `""` |
 | `ghostreview.defaultPersona` | Default reviewer persona | `brutal` |
 
 ## Telemetry
 
-GhostReview collects anonymous usage data to help improve the extension. No personal information, code, or review content is ever collected. Only anonymous event counts are tracked (e.g. "a review was started").
-
-Telemetry respects your VSCode telemetry settings. To disable: set `telemetry.telemetryLevel` to `"off"` in VSCode settings.
+GhostReview collects anonymous usage data to help improve the extension. No personal information, code, or review content is ever collected. Telemetry respects your VSCode telemetry settings. To disable: set `telemetry.telemetryLevel` to `"off"`.
 
 ## Release Notes
 
-### 0.1.0
+### 0.1.8
+- Improved onboarding — free tier now clearly surfaced
+- Fixed misleading error messages
+- Better first-run experience
 
-Initial release. Three reviewer personas, real-time streaming, git diff integration.
+### 0.1.0
+Initial release.

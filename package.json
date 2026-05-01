@@ -1,8 +1,8 @@
 {
   "name": "ghostreview",
   "displayName": "GhostReview",
-  "description": "AI code review that sounds like a senior engineer, not a linter. Reviews your git diff before your senior does.",
-  "version": "0.1.7",
+  "description": "AI code review that remembers your mistakes so you don't repeat them.",
+  "version": "0.1.8",
   "publisher": "ghostReview2026",
   "icon": "resources/icon.png",
   "homepage": "https://ghost-review-kappa.vercel.app/",
